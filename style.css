@@ -124,6 +124,7 @@ body, html {
 
 .btn-secondary {
     background-color: var(--color-primary);
+    color: var(--color-text);
 }
 
 .btn-outline {
