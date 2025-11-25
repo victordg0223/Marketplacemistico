@@ -1,0 +1,8 @@
+node_modules
+.git
+.env
+*.log
+requirements.txt
+django-ci.yml
+LICENSE
+README.md
