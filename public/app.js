@@ -90,14 +90,40 @@ function navigateHome() {
         console.log('➡️ Vendedor, indo para dashboard-vendedor');
         showPage('dashboard-vendedor');
         loadSellerProducts();
+        populateSellerDashboard();
     } else if (user.tipo === 'cliente') {
         console.log('➡️ Cliente, indo para dashboard-cliente');
         showPage('dashboard-cliente');
         loadProducts();
+        populateClienteDashboard();
     } else {
         console.log('➡️ Tipo desconhecido, indo para marketplace');
         showPage('marketplace');
         loadProducts();
+    }
+}
+
+function populateSellerDashboard() {
+    if (!currentUser || currentUser.tipo !== 'vendedor') return;
+    
+    const sellerNameEl = document.getElementById('seller-name');
+    const storeNameEl = document.getElementById('store-name');
+    
+    if (sellerNameEl) {
+        sellerNameEl.textContent = currentUser.nome || 'Vendedor';
+    }
+    if (storeNameEl) {
+        storeNameEl.textContent = currentUser.nome_loja || 'Sua Loja';
+    }
+}
+
+function populateClienteDashboard() {
+    if (!currentUser || currentUser.tipo !== 'cliente') return;
+    
+    const customerNameEl = document.getElementById('customer-name');
+    
+    if (customerNameEl) {
+        customerNameEl.textContent = currentUser.nome || 'Cliente';
     }
 }
 
@@ -131,6 +157,67 @@ function setUserTypeAndRegister(userType) {
     toggleSellerFields();
 }
 
+function showDashboardSection(userType, section) {
+    console.log(`📊 Mostrando seção ${section} para ${userType}`);
+    
+    // For now, just show the appropriate page based on section
+    if (section === 'carrinho') {
+        showPage('carrinho');
+    } else if (section === 'perfil') {
+        if (userType === 'cliente') {
+            showPage('cliente-profile');
+            populateClienteProfile();
+        } else {
+            showPage('seller-profile');
+            populateSellerProfile();
+        }
+    } else if (section === 'pedidos') {
+        // Future implementation: show orders page
+        alert('Seção de pedidos em desenvolvimento');
+    } else if (section === 'produtos') {
+        showPage('seller-products');
+        loadSellerProducts();
+    } else if (section === 'adicionar') {
+        showPage('add-product');
+    }
+}
+
+function populateClienteProfile() {
+    if (!currentUser || currentUser.tipo !== 'cliente') return;
+    
+    const setDisplayText = (id, value) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = value || 'Não informado';
+    };
+    
+    setDisplayText('cliente-display-nome', currentUser.nome);
+    setDisplayText('cliente-display-email', currentUser.email);
+    setDisplayText('cliente-display-telefone', currentUser.telefone);
+    setDisplayText('cliente-display-cep', currentUser.cep);
+    setDisplayText('cliente-display-rua', currentUser.rua);
+    setDisplayText('cliente-display-numero', currentUser.numero);
+    setDisplayText('cliente-display-complemento', currentUser.complemento);
+    setDisplayText('cliente-display-bairro', currentUser.bairro);
+    setDisplayText('cliente-display-cidade', currentUser.cidade);
+    setDisplayText('cliente-display-estado', currentUser.estado);
+}
+
+function populateSellerProfile() {
+    // Future implementation: populate seller profile
+    if (!currentUser || currentUser.tipo !== 'vendedor') return;
+    // Seller profile population will be implemented when needed
+}
+
+function goToMarketplaceWithCategory(category) {
+    showPage('marketplace');
+    filterByCategory(category);
+}
+
+function showMyStore() {
+    // Future implementation: show seller's public store page
+    alert('Visualização da loja em desenvolvimento');
+}
+
 // ==================== FORMS ====================
 function toggleSellerFields() {
     const isVendedor = document.getElementById('tipo-vendedor').checked;
@@ -140,6 +227,69 @@ function toggleSellerFields() {
     } else {
         sellerFields.classList.remove('show');
     }
+}
+
+// ==================== PROFILE EDITING ====================
+function enterClienteEditMode() {
+    const viewMode = document.getElementById('cliente-profile-view-mode');
+    const editMode = document.getElementById('cliente-profile-edit-mode');
+    
+    if (viewMode) viewMode.style.display = 'none';
+    if (editMode) editMode.style.display = 'block';
+    
+    // Populate edit form with current user data
+    if (currentUser) {
+        const setFieldValue = (id, value) => {
+            const field = document.getElementById(id);
+            if (field) field.value = value || '';
+        };
+        
+        setFieldValue('edit-cliente-nome', currentUser.nome);
+        setFieldValue('edit-cliente-telefone', currentUser.telefone);
+        setFieldValue('edit-cliente-cep', currentUser.cep);
+        setFieldValue('edit-cliente-rua', currentUser.rua);
+        setFieldValue('edit-cliente-numero', currentUser.numero);
+        setFieldValue('edit-cliente-complemento', currentUser.complemento);
+        setFieldValue('edit-cliente-bairro', currentUser.bairro);
+        setFieldValue('edit-cliente-cidade', currentUser.cidade);
+        setFieldValue('edit-cliente-estado', currentUser.estado);
+        
+        const emailDisplay = document.getElementById('edit-cliente-display-email');
+        if (emailDisplay) emailDisplay.textContent = currentUser.email;
+    }
+}
+
+function cancelClienteEditMode() {
+    const viewMode = document.getElementById('cliente-profile-view-mode');
+    const editMode = document.getElementById('cliente-profile-edit-mode');
+    
+    if (viewMode) viewMode.style.display = 'block';
+    if (editMode) editMode.style.display = 'none';
+}
+
+function enterEditMode() {
+    // For seller profile editing (similar to cliente)
+    alert('Edição de perfil do vendedor em desenvolvimento');
+}
+
+function cancelEditMode() {
+    // For seller profile editing
+    alert('Edição de perfil do vendedor em desenvolvimento');
+}
+
+function cancelAddProduct() {
+    // Cancel adding product and return to products list
+    showPage('seller-products');
+}
+
+function contactSeller(sellerId) {
+    // Future implementation: contact seller
+    alert('Funcionalidade de contato em desenvolvimento');
+}
+
+function filterStoreByCategory(categoria) {
+    // Future implementation: filter store products by category
+    filterByCategory(categoria);
 }
 
 // ==================== VALIDAÇÕES ====================
@@ -229,6 +379,16 @@ function showMessage(containerId, message, isError = false) {
 }
 
 // ==================== AUTENTICAÇÃO ====================
+function handleGoogleRegister() {
+    // Future implementation: Google OAuth registration
+    alert('Login com Google em desenvolvimento. Por favor, use o formulário de registro tradicional.');
+}
+
+function handleGoogleLogin() {
+    // Future implementation: Google OAuth login
+    alert('Login com Google em desenvolvimento. Por favor, use o formulário de login tradicional.');
+}
+
 async function register(event) {
     event.preventDefault();
     clearMessages();
@@ -417,7 +577,7 @@ async function addProduct(event) {
         });
 
         document.getElementById('addProductForm').reset();
-        showPage('products-list');
+        showPage('seller-products');
         await loadSellerProducts();
         alert('Produto adicionado com sucesso!');
 
@@ -448,24 +608,72 @@ async function deleteProduct(productId) {
 function updateNavbar() {
     console.log('🔄 Atualizando navbar...');
     
-    const authButtons = document.getElementById('auth-buttons');
-    const userMenu = document.getElementById('user-menu');
-    const userNameElement = document.getElementById('user-name');
-
-    if (!authButtons || !userMenu || !userNameElement) {
-        console.error('❌ Elementos da navbar não encontrados!');
-        return;
-    }
+    // Desktop navigation elements
+    const navLoginLink = document.getElementById('nav-login-link');
+    const navRegisterLink = document.getElementById('nav-register-link');
+    const logoutLink = document.getElementById('logout-link');
+    const cartNavLink = document.getElementById('cart-nav-link');
+    
+    // Mobile sidebar elements
+    const mobileLoginLink = document.getElementById('mobile-login-link');
+    const mobileRegisterLink = document.getElementById('mobile-register-link');
+    const mobileLogoutLink = document.getElementById('mobile-logout-link');
+    const mobileCartLink = document.getElementById('mobile-cart-link');
 
     if (currentUser) {
-        console.log('✅ Usuário logado, mostrando menu do usuário');
-        authButtons.style.display = 'none';
-        userMenu.style.display = 'block';
-        userNameElement.textContent = currentUser.nome;
+        console.log('✅ Usuário logado:', currentUser.tipo);
+        
+        // Hide login/register links
+        if (navLoginLink) navLoginLink.style.display = 'none';
+        if (navRegisterLink) navRegisterLink.style.display = 'none';
+        if (mobileLoginLink) mobileLoginLink.style.display = 'none';
+        if (mobileRegisterLink) mobileRegisterLink.style.display = 'none';
+        
+        // Show logout link
+        if (logoutLink) {
+            logoutLink.classList.remove('hidden');
+            logoutLink.style.display = 'block';
+        }
+        if (mobileLogoutLink) {
+            mobileLogoutLink.classList.remove('hidden');
+            mobileLogoutLink.style.display = 'block';
+        }
+        
+        // Show cart for all logged-in users (vendors can also buy)
+        if (cartNavLink) {
+            cartNavLink.classList.remove('hidden');
+            cartNavLink.style.display = 'block';
+        }
+        if (mobileCartLink) {
+            mobileCartLink.classList.remove('hidden');
+            mobileCartLink.style.display = 'block';
+        }
     } else {
         console.log('ℹ️ Sem usuário, mostrando botões de auth');
-        authButtons.style.display = 'flex';
-        userMenu.style.display = 'none';
+        
+        // Show login/register links
+        if (navLoginLink) navLoginLink.style.display = 'block';
+        if (navRegisterLink) navRegisterLink.style.display = 'block';
+        if (mobileLoginLink) mobileLoginLink.style.display = 'block';
+        if (mobileRegisterLink) mobileRegisterLink.style.display = 'block';
+        
+        // Hide logout and cart links
+        if (logoutLink) {
+            logoutLink.classList.add('hidden');
+            logoutLink.style.display = 'none';
+        }
+        if (mobileLogoutLink) {
+            mobileLogoutLink.classList.add('hidden');
+            mobileLogoutLink.style.display = 'none';
+        }
+        if (cartNavLink) {
+            cartNavLink.classList.add('hidden');
+            cartNavLink.style.display = 'none';
+        }
+        if (mobileCartLink) {
+            mobileCartLink.classList.add('hidden');
+            mobileCartLink.style.display = 'none';
+        }
     }
 }
 
@@ -545,6 +753,13 @@ function renderSellerProducts(sellerProducts) {
 
 // ==================== CARRINHO ====================
 function addToCart(productId) {
+    // Check if user is logged in
+    if (!currentUser) {
+        showLoginModal();
+        return;
+    }
+    
+    // All logged-in users can add to cart (vendors can also buy)
     const product = products.find(p => p.id === productId);
     if (!product) return;
 
@@ -576,14 +791,21 @@ function updateCartQuantity(productId, newQuantity) {
 
 function updateCartBadge() {
     const badge = document.getElementById('cart-badge');
-    if (!badge) return;
+    const mobileCartCount = document.getElementById('mobile-cart-count');
     const totalItems = shoppingCart.reduce((sum, item) => sum + item.quantidade, 0);
-    badge.textContent = totalItems;
-    badge.style.display = totalItems > 0 ? 'flex' : 'none';
+    
+    if (badge) {
+        badge.textContent = totalItems;
+        badge.style.display = totalItems > 0 ? 'flex' : 'none';
+    }
+    
+    if (mobileCartCount) {
+        mobileCartCount.textContent = totalItems;
+    }
 }
 
 function showCart() {
-    showPage('cart');
+    showPage('carrinho');
     renderCart();
 }
 
@@ -625,18 +847,157 @@ function filterByCategory(categoria) {
 }
 
 // ==================== MOBILE ====================
+function toggleMobileSidebar() {
+    const sidebar = document.querySelector('.mobile-sidebar');
+    const overlay = document.querySelector('.sidebar-overlay');
+    
+    if (sidebar && overlay) {
+        const isActive = sidebar.classList.contains('active');
+        if (isActive) {
+            closeMobileSidebar();
+        } else {
+            openMobileSidebar();
+        }
+    }
+}
+
 function openMobileSidebar() {
-    const sidebar = document.getElementById('mobile-sidebar');
-    const overlay = document.getElementById('sidebar-overlay');
+    const sidebar = document.querySelector('.mobile-sidebar');
+    const overlay = document.querySelector('.sidebar-overlay');
     if (sidebar) sidebar.classList.add('active');
     if (overlay) overlay.classList.add('active');
 }
 
 function closeMobileSidebar() {
-    const sidebar = document.getElementById('mobile-sidebar');
-    const overlay = document.getElementById('sidebar-overlay');
+    const sidebar = document.querySelector('.mobile-sidebar');
+    const overlay = document.querySelector('.sidebar-overlay');
     if (sidebar) sidebar.classList.remove('active');
     if (overlay) overlay.classList.remove('active');
+}
+
+function navigateFromSidebar(pageId) {
+    closeMobileSidebar();
+    showPage(pageId);
+}
+
+function logoutFromSidebar() {
+    closeMobileSidebar();
+    logout();
+}
+
+// ==================== LOGIN MODAL ====================
+function showLoginModal() {
+    const modal = document.getElementById('loginModal');
+    if (modal) {
+        modal.style.display = 'flex';
+    }
+}
+
+function closeLoginModal() {
+    const modal = document.getElementById('loginModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+function goToLogin() {
+    closeLoginModal();
+    showPage('login');
+}
+
+function goToRegister() {
+    closeLoginModal();
+    showPage('registro');
+}
+
+// ==================== BECOME VENDOR MODAL ====================
+function showBecomeVendorModal() {
+    const modal = document.getElementById('becomeVendorModal');
+    if (modal) {
+        modal.style.display = 'flex';
+    }
+}
+
+function closeBecomeVendorModal() {
+    const modal = document.getElementById('becomeVendorModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+function goToVendorRegistration() {
+    closeBecomeVendorModal();
+    showPage('vendor-registration');
+}
+
+function cancelVendorRegistration() {
+    if (currentUser && currentUser.tipo === 'cliente') {
+        showPage('dashboard-cliente');
+    } else {
+        showPage('marketplace');
+    }
+}
+
+// ==================== VENDOR CONVERSION ====================
+async function upgradeToVendor(event) {
+    event.preventDefault();
+    
+    if (!currentUser || currentUser.tipo !== 'cliente') {
+        alert('Apenas clientes podem se tornar vendedores');
+        return;
+    }
+    
+    const nomeLoja = document.getElementById('vendor-nome-loja').value.trim();
+    const categoria = document.getElementById('vendor-categoria').value;
+    const descricao = document.getElementById('vendor-descricao').value.trim();
+    const cpfCnpj = document.getElementById('vendor-cpf-cnpj').value.trim();
+    
+    if (!nomeLoja || !categoria || !cpfCnpj) {
+        showMessage('vendor-registration-messages', 'Por favor, preencha todos os campos obrigatórios', true);
+        return;
+    }
+    
+    if (!validateCpfCnpj(cpfCnpj)) {
+        document.getElementById('vendor-cpf-cnpj-error').style.display = 'block';
+        showMessage('vendor-registration-messages', 'CPF/CNPJ inválido', true);
+        return;
+    } else {
+        document.getElementById('vendor-cpf-cnpj-error').style.display = 'none';
+    }
+    
+    try {
+        // Call API to upgrade user to vendedor
+        const data = await apiRequest('/users/upgrade-to-vendor', {
+            method: 'POST',
+            body: JSON.stringify({
+                nome_loja: nomeLoja,
+                categoria: categoria,
+                descricao_loja: descricao,
+                cpf_cnpj: cpfCnpj
+            })
+        });
+        
+        if (data.success) {
+            // Update current user data (senha_hash already removed by API)
+            currentUser = data.user;
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            
+            showMessage('vendor-registration-messages', 'Parabéns! Você agora é um vendedor!', false);
+            
+            // Navigate to vendor dashboard after a brief delay
+            setTimeout(() => {
+                updateNavbar();
+                showPage('dashboard-vendedor');
+                loadSellerProducts();
+                populateSellerDashboard();
+            }, 2000);
+        } else {
+            throw new Error(data.error || 'Erro ao se tornar vendedor');
+        }
+    } catch (error) {
+        console.error('Erro ao se tornar vendedor:', error);
+        showMessage('vendor-registration-messages', error.message, true);
+    }
 }
 
 // ==================== INICIALIZAÇÃO ====================
@@ -647,6 +1008,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const registrationForm = document.getElementById('registrationForm');
     const loginForm = document.getElementById('loginForm');
     const addProductForm = document.getElementById('addProductForm');
+    const vendorRegistrationForm = document.getElementById('vendorRegistrationForm');
     
     if (registrationForm) {
         registrationForm.addEventListener('submit', register);
@@ -667,6 +1029,13 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('✅ Add product form event listener attached');
     } else {
         console.log('ℹ️ Add product form not found (will be attached when page loads)');
+    }
+    
+    if (vendorRegistrationForm) {
+        vendorRegistrationForm.addEventListener('submit', upgradeToVendor);
+        console.log('✅ Vendor registration form event listener attached');
+    } else {
+        console.log('ℹ️ Vendor registration form not found (will be attached when page loads)');
     }
     
     const savedToken = localStorage.getItem('authToken');

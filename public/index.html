@@ -59,6 +59,30 @@
         </div>
     </div>
 
+    <!-- Become Vendor Modal -->
+    <div class="login-modal" id="becomeVendorModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeBecomeVendorModal()">✕</button>
+            <h3 class="modal-title">🏪 Tornar-se um Vendedor</h3>
+            <p style="color: var(--color-text-secondary); margin-bottom: var(--space-6);">
+                Transforme sua paixão em negócio! Complete seu cadastro como vendedor para começar a vender seus produtos místicos no marketplace.
+            </p>
+            <div style="background: var(--color-surface-light); padding: var(--space-4); border-radius: var(--radius-md); margin-bottom: var(--space-6);">
+                <h4 style="color: var(--color-secondary); margin-bottom: var(--space-3);">✨ Benefícios de ser Vendedor:</h4>
+                <ul style="color: var(--color-text-secondary); padding-left: var(--space-5); margin: 0;">
+                    <li>Alcance milhares de clientes interessados</li>
+                    <li>Gerencie seus produtos facilmente</li>
+                    <li>Acompanhe suas vendas em tempo real</li>
+                    <li>Continue comprando como cliente</li>
+                </ul>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn" onclick="goToVendorRegistration()">Completar Cadastro</button>
+                <button class="btn btn-outline" onclick="closeBecomeVendorModal()">Agora Não</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Main Content -->
     <main class="main-content">
         <div class="container">
@@ -349,6 +373,51 @@
                 </div>
             </section>
 
+            <!-- Vendor Registration Completion -->
+            <section id="vendor-registration" class="page">
+                <div class="form-container">
+                    <h2 class="form-title">🏪 Complete seu Cadastro de Vendedor</h2>
+                    <p style="color: var(--color-text-secondary); margin-bottom: var(--space-6); text-align: center;">
+                        Você está a poucos passos de começar a vender no Marketplace Místico!
+                    </p>
+                    <div id="vendor-registration-messages"></div>
+                    <form id="vendorRegistrationForm">
+                        <div class="form-group">
+                            <label for="vendor-nome-loja" class="form-label">Nome da Loja *</label>
+                            <input type="text" id="vendor-nome-loja" class="form-input" placeholder="Ex: Cristais da Lua" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="vendor-categoria" class="form-label">Categoria Principal *</label>
+                            <select id="vendor-categoria" class="form-select" required>
+                                <option value="">Selecione uma categoria</option>
+                                <option value="Cristais e Pedras">🔮 Cristais e Pedras</option>
+                                <option value="Tarô e Oráculos">🃏 Tarô e Oráculos</option>
+                                <option value="Incensos e Velas">🕯️ Incensos e Velas</option>
+                                <option value="Amuletos e Talismãs">🧿 Amuletos e Talismãs</option>
+                                <option value="Livros Esotéricos">📚 Livros Esotéricos</option>
+                                <option value="Serviços Místicos">✨ Serviços Místicos</option>
+                                <option value="Outros">🌟 Outros</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="vendor-descricao" class="form-label">Descrição da Loja</label>
+                            <textarea id="vendor-descricao" class="form-input" rows="4" placeholder="Conte aos clientes sobre sua loja e produtos..."></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="vendor-cpf-cnpj" class="form-label">CPF/CNPJ *</label>
+                            <input type="text" id="vendor-cpf-cnpj" class="form-input" placeholder="000.000.000-00" oninput="formatCpfCnpj(this)" required>
+                            <div class="error-message" id="vendor-cpf-cnpj-error">CPF/CNPJ inválido</div>
+                        </div>
+                        
+                        <button type="submit" class="btn" style="width: 100%;">✨ Tornar-se Vendedor</button>
+                        <button type="button" class="btn btn-outline" onclick="cancelVendorRegistration()" style="width: 100%; margin-top: var(--space-3);">Cancelar</button>
+                    </form>
+                </div>
+            </section>
+
             <!-- Seller Dashboard -->
             <section id="dashboard-vendedor" class="page">
                 <div class="dashboard-layout">
@@ -360,6 +429,8 @@
                             <li><a onclick="showDashboardSection('vendedor', 'pedidos')">📋 Pedidos</a></li>
                             <li><a onclick="showDashboardSection('vendedor', 'perfil')">🏪 Perfil da Loja</a></li>
                             <li><a onclick="showMyStore()">👁️ Ver Minha Loja</a></li>
+                            <li class="sidebar-separator"><a onclick="showPage('marketplace')">🛒 Comprar Produtos</a></li>
+                            <li><a onclick="showDashboardSection('vendedor', 'carrinho')">🛍️ Meu Carrinho</a></li>
                             <li><a onclick="logout()">🚪 Sair</a></li>
                         </ul>
                     </aside>
@@ -612,6 +683,7 @@
                             <li><a onclick="showDashboardSection('cliente', 'carrinho')">🛒 Meu Carrinho</a></li>
                             <li><a onclick="showDashboardSection('cliente', 'pedidos')">📋 Meus Pedidos</a></li>
                             <li><a onclick="showDashboardSection('cliente', 'perfil')">👤 Perfil</a></li>
+                            <li class="sidebar-separator"><a onclick="showBecomeVendorModal()">🏪 Tornar-se Vendedor</a></li>
                             <li><a onclick="logout()">🚪 Sair</a></li>
                         </ul>
                     </aside>
