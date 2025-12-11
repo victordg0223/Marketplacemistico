@@ -7,6 +7,8 @@ DROP TABLE IF EXISTS sellers CASCADE;
 DROP TABLE IF EXISTS users CASCADE;
 
 -- Tabela de Usuários
+-- Note: Users can upgrade from 'cliente' to 'vendedor' but not downgrade
+-- Vendors maintain full buying capabilities (cart, orders) in addition to selling
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     tipo VARCHAR(20) NOT NULL CHECK (tipo IN ('vendedor', 'cliente')),
