@@ -719,7 +719,7 @@ function renderProducts() {
                 <h3>${product.nome}</h3>
                 <p class="product-description">${product.descricao || ''}</p>
                 <p class="product-seller">Vendido por: ${product.nome_loja}</p>
-                <p class="product-price">R$ ${product.preco.toFixed(2).replace('.', ',')}</p>
+                <p class="product-price">R$ ${(parseFloat(product.preco) || 0).toFixed(2).replace('.', ',')}</p>
                 <button onclick="addToCart(${product.id})" class="btn-primary">Adicionar ao Carrinho</button>
             </div>
         </div>
@@ -759,7 +759,7 @@ function renderSellerProducts(sellerProducts) {
                             <small>${product.descricao ? product.descricao.substring(0, 50) + '...' : ''}</small>
                         </td>
                         <td>${product.categoria}</td>
-                        <td>R$ ${product.preco.toFixed(2).replace('.', ',')}</td>
+                        <td>R$ ${(parseFloat(product.preco) || 0).toFixed(2).replace('.', ',')}</td>
                         <td>${product.estoque}</td>
                         <td>
                             <span class="badge ${product.publicado ? 'badge-success' : 'badge-warning'}">
@@ -846,7 +846,7 @@ function renderCart() {
         return;
     }
 
-    const subtotal = shoppingCart.reduce((sum, item) => sum + (item.preco * item.quantidade), 0);
+    const subtotal = shoppingCart.reduce((sum, item) => sum + ((parseFloat(item.preco) || 0) * item.quantidade), 0);
     subtotalElement.textContent = `R$ ${subtotal.toFixed(2).replace('.', ',')}`;
 
     container.innerHTML = shoppingCart.map(item => `
@@ -854,7 +854,7 @@ function renderCart() {
             <div class="cart-item-info">
                 <h4>${item.nome}</h4>
                 <p>Vendido por: ${item.nome_loja}</p>
-                <p class="product-price">R$ ${item.preco.toFixed(2).replace('.', ',')}</p>
+                <p class="product-price">R$ ${(parseFloat(item.preco) || 0).toFixed(2).replace('.', ',')}</p>
             </div>
             <div class="cart-item-actions">
                 <input type="number" min="1" value="${item.quantidade}" 
