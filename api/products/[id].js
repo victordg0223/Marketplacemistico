@@ -1,5 +1,6 @@
 import { query } from '../db.js';
 import jwt from 'jsonwebtoken';
+import { sanitizeInteger } from '../sanitize.js';
 
 function verifyToken(req) {
   const authHeader = req.headers.authorization;
@@ -24,6 +25,11 @@ export default async function handler(req, res) {
   }
 
   const { id } = req.query;
+  const sanitizedId = sanitizeInteger(id);
+
+  if (!sanitizedId) {
+    return res.status(400).json({ error: 'ID inválido' });
+  }
 
   if (req.method === 'GET') {
     try {
@@ -32,7 +38,7 @@ export default async function handler(req, res) {
          FROM products p
          JOIN sellers s ON p.seller_id = s.id
          WHERE p.id = $1`,
-        [id]
+        [sanitizedId]
       );
 
       if (products.length === 0) {
@@ -62,14 +68,14 @@ export default async function handler(req, res) {
 
       const result = await query(
         'DELETE FROM products WHERE id = $1 AND seller_id = $2 RETURNING id',
-        [id, sellerId]
+        [sanitizedId, sellerId]
       );
 
       if (result.length === 0) {
         return res.status(404).json({ error: 'Produto não encontrado ou sem permissão' });
       }
 
-      console.log('✅ Produto deletado:', id);
+      console.log('✅ Produto deletado:', sanitizedId);
       return res.status(200).json({ success: true, message: 'Produto deletado' });
 
     } catch (error) {

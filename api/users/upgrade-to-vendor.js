@@ -1,5 +1,6 @@
 import { query } from '../db.js';
 import jwt from 'jsonwebtoken';
+import { sanitizeString, sanitizeCpfCnpj } from '../sanitize.js';
 
 function verifyToken(req) {
   const authHeader = req.headers.authorization;
@@ -63,7 +64,13 @@ export default async function handler(req, res) {
 
     const { nome_loja, categoria, descricao_loja, cpf_cnpj } = req.body;
 
-    if (!nome_loja || !categoria || !cpf_cnpj) {
+    // Sanitize inputs
+    const sanitizedNomeLoja = sanitizeString(nome_loja);
+    const sanitizedCategoria = sanitizeString(categoria);
+    const sanitizedDescricaoLoja = sanitizeString(descricao_loja);
+    const sanitizedCpfCnpj = sanitizeCpfCnpj(cpf_cnpj);
+
+    if (!sanitizedNomeLoja || !sanitizedCategoria || !sanitizedCpfCnpj) {
       return res.status(400).json({ 
         error: 'Nome da loja, categoria e CPF/CNPJ são obrigatórios',
         success: false 
@@ -75,7 +82,7 @@ export default async function handler(req, res) {
     // 1. Update user tipo to vendedor
     await query(
       'UPDATE users SET tipo = $1, cpf_cnpj = $2, updated_at = CURRENT_TIMESTAMP WHERE id = $3',
-      ['vendedor', cpf_cnpj, user.id]
+      ['vendedor', sanitizedCpfCnpj, user.id]
     );
 
     // 2. Create seller record
@@ -83,7 +90,7 @@ export default async function handler(req, res) {
       `INSERT INTO sellers (user_id, nome_loja, categoria, descricao_loja)
        VALUES ($1, $2, $3, $4)
        RETURNING id`,
-      [user.id, nome_loja, categoria, descricao_loja || '']
+      [user.id, sanitizedNomeLoja, sanitizedCategoria, sanitizedDescricaoLoja || '']
     );
 
     const sellerId = sellerResult[0].id;

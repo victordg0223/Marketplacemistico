@@ -1,6 +1,7 @@
 import { query } from '../db.js';
 import bcryptjs from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { sanitizeEmail } from '../sanitize.js';
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Credentials', 'true');
@@ -19,7 +20,10 @@ export default async function handler(req, res) {
   console.log('🔑 Tentativa de login...');
 
   try {
-    const { email, senha } = req.body;
+    let { email, senha } = req.body;
+
+    // Sanitize email input
+    email = sanitizeEmail(email);
 
     if (!email || !senha) {
       return res.status(400).json({ error: 'Email e senha são obrigatórios' });

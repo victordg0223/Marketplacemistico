@@ -1,5 +1,6 @@
 import { query } from '../db.js';
 import jwt from 'jsonwebtoken';
+import { sanitizeString, sanitizeNumber, sanitizeInteger, sanitizeUrl, sanitizeBoolean } from '../sanitize.js';
 
 function verifyToken(req) {
   const authHeader = req.headers.authorization;
@@ -73,17 +74,31 @@ export default async function handler(req, res) {
       }
       const sellerId = sellers[0].id;
 
-      const { nome, categoria, descricao, preco, estoque, imagemUrl, publicado } = req.body;
+      let { nome, categoria, descricao, preco, estoque, imagemUrl, publicado } = req.body;
 
-      if (!nome || !categoria || !preco) {
+      // Sanitize all inputs
+      nome = sanitizeString(nome);
+      categoria = sanitizeString(categoria);
+      descricao = sanitizeString(descricao);
+      preco = sanitizeNumber(preco);
+      estoque = sanitizeInteger(estoque);
+      imagemUrl = sanitizeUrl(imagemUrl);
+      publicado = sanitizeBoolean(publicado);
+
+      if (!nome || !categoria || preco === null) {
         return res.status(400).json({ error: 'Campos obrigatórios faltando' });
+      }
+
+      // Ensure estoque is at least 0
+      if (estoque === null || estoque < 0) {
+        estoque = 0;
       }
 
       const result = await query(
         `INSERT INTO products (seller_id, nome, categoria, descricao, preco, estoque, imagem_url, publicado)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
          RETURNING *`,
-        [sellerId, nome, categoria, descricao, preco, estoque || 0, imagemUrl || '', publicado || false]
+        [sellerId, nome, categoria, descricao, preco, estoque, imagemUrl || '', publicado]
       );
 
       console.log('✅ Produto criado:', result);

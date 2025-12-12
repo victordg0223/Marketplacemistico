@@ -315,15 +315,31 @@ function validateCpfCnpj(cpfCnpj) {
 }
 
 function validateCpfCnpjField() {
-    const cpfCnpj = document.getElementById('cpf-cnpj').value.trim();
-    const cpfCnpjError = document.getElementById('cpf-cnpj-error');
-    if (cpfCnpj && !validateCpfCnpj(cpfCnpj)) {
+    // Check both registration form and vendor form
+    const cpfCnpjRegistro = document.getElementById('cpf-cnpj-registro');
+    const cpfCnpjVendor = document.getElementById('vendor-cpf-cnpj');
+    
+    let cpfCnpj = '';
+    let cpfCnpjError = null;
+    
+    if (cpfCnpjRegistro && cpfCnpjRegistro.offsetParent !== null) {
+        // Registration form field
+        cpfCnpj = cpfCnpjRegistro.value.trim();
+        cpfCnpjError = document.getElementById('cpf-cnpj-registro-error');
+    } else if (cpfCnpjVendor && cpfCnpjVendor.offsetParent !== null) {
+        // Vendor upgrade form field
+        cpfCnpj = cpfCnpjVendor.value.trim();
+        cpfCnpjError = document.getElementById('vendor-cpf-cnpj-error');
+    }
+    
+    if (cpfCnpjError && cpfCnpj && !validateCpfCnpj(cpfCnpj)) {
         cpfCnpjError.style.display = 'block';
         return false;
-    } else {
+    } else if (cpfCnpjError) {
         cpfCnpjError.style.display = 'none';
         return true;
     }
+    return true;
 }
 
 function validateEmail() {
@@ -393,7 +409,7 @@ async function register(event) {
     event.preventDefault();
     clearMessages();
 
-    if (!validateEmail() || !validatePassword() || !validatePasswordMatch() || !validateCpfCnpjField()) {
+    if (!validateEmail() || !validatePassword() || !validatePasswordMatch()) {
         showMessage('registration-messages', 'Por favor, corrija os erros no formulário', true);
         return;
     }
@@ -403,11 +419,20 @@ async function register(event) {
     const email = document.getElementById('email').value.trim();
     const senha = document.getElementById('senha').value;
     const telefone = document.getElementById('telefone').value.trim();
-    const cpf_cnpj = document.getElementById('cpf-cnpj').value.trim();
+    const cpf_cnpj = document.getElementById('cpf-cnpj-registro').value.trim();
 
-    if (!nome || !email || !senha) {
+    if (!nome || !email || !senha || !telefone || !cpf_cnpj) {
         showMessage('registration-messages', 'Por favor, preencha todos os campos obrigatórios', true);
         return;
+    }
+
+    // Validate CPF/CNPJ format
+    if (!validateCpfCnpj(cpf_cnpj)) {
+        document.getElementById('cpf-cnpj-registro-error').style.display = 'block';
+        showMessage('registration-messages', 'CPF/CNPJ inválido', true);
+        return;
+    } else {
+        document.getElementById('cpf-cnpj-registro-error').style.display = 'none';
     }
 
     const userData = { tipo, nome, email, senha, telefone, cpf_cnpj };

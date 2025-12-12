@@ -296,20 +296,21 @@
                             <div class="error-message" id="confirmar-senha-error">As senhas não coincidem</div>
                         </div>
                         <div class="form-group">
-                            <label for="telefone" class="form-label">Telefone</label>
-                            <input type="tel" id="telefone" class="form-input">
+                            <label for="telefone" class="form-label">Telefone *</label>
+                            <input type="tel" id="telefone" class="form-input" required>
+                            <div class="error-message" id="telefone-error">Telefone é obrigatório</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="cpf-cnpj-registro" class="form-label">CPF/CNPJ *</label>
+                            <input type="text" id="cpf-cnpj-registro" class="form-input" placeholder="000.000.000-00 ou 00.000.000/0000-00" oninput="formatCpfCnpj(this)" onblur="validateCpfCnpjField()" required>
+                            <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-top: var(--space-1);">Aceita CPF (pessoa física) ou CNPJ (pessoa jurídica)</div>
+                            <div class="error-message" id="cpf-cnpj-registro-error">CPF deve ter 11 dígitos ou CNPJ deve ter 14 dígitos</div>
                         </div>
                         <div id="seller-fields" class="seller-fields">
                             <div class="form-group">
                                 <label for="nome-loja" class="form-label">Nome da Loja *</label>
                                 <input type="text" id="nome-loja" class="form-input">
                                 <div class="error-message" id="nome-loja-error">Nome da loja é obrigatório para vendedores</div>
-                            </div>
-                            <div class="form-group">
-                                <label for="cpf-cnpj" class="form-label">CPF/CNPJ</label>
-                                <input type="text" id="cpf-cnpj" class="form-input" placeholder="000.000.000-00 ou 00.000.000/0000-00" oninput="formatCpfCnpj(this)" onblur="validateCpfCnpjField()">
-                                <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-top: var(--space-1);">Aceita CPF (pessoa física) ou CNPJ (pessoa jurídica)</div>
-                                <div class="error-message" id="cpf-cnpj-error">CPF deve ter 11 dígitos ou CNPJ deve ter 14 dígitos</div>
                             </div>
                             <div class="form-group">
                                 <label for="categoria" class="form-label">Categoria de Produtos *</label>
@@ -750,12 +751,10 @@
                         <h1 style="color: var(--color-secondary); margin-bottom: var(--space-2);">Meu Carrinho</h1>
                         <p id="cart-subtitle" style="color: var(--color-text-secondary);">0 itens no carrinho</p>
                     </div>
-                    <div id="cart-content"></div>
-                    <div id="empty-cart-state" class="text-center" style="display: none; padding: var(--space-12); background: var(--color-surface-light); border-radius: var(--radius-lg); border: 1px solid var(--color-border);">
-                        <div style="font-size: 4rem; margin-bottom: var(--space-4);">🛒</div>
-                        <h3 style="color: var(--color-secondary); margin-bottom: var(--space-4);">Seu carrinho está vazio</h3>
-                        <p style="color: var(--color-text-secondary); margin-bottom: var(--space-6);">Adicione produtos incríveis do nosso marketplace!</p>
-                        <button class="btn" onclick="showPage('marketplace')">Explorar Produtos</button>
+                    <div id="cart-items"></div>
+                    <div style="background: var(--color-surface-light); padding: var(--space-6); border-radius: var(--radius-lg); margin-top: var(--space-6); text-align: right;">
+                        <h3 style="color: var(--color-secondary); margin-bottom: var(--space-4);">Subtotal: <span id="cart-subtotal">R$ 0,00</span></h3>
+                        <button class="btn" style="padding: var(--space-3) var(--space-8);">Finalizar Compra</button>
                     </div>
                 </div>
             </section>

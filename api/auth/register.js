@@ -1,5 +1,6 @@
 import { query } from '../db.js';
 import bcryptjs from 'bcryptjs';
+import { sanitizeString, sanitizeEmail, sanitizePhone, sanitizeCpfCnpj } from '../sanitize.js';
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Credentials', 'true');
@@ -19,11 +20,28 @@ export default async function handler(req, res) {
   console.log('Body:', JSON.stringify(req.body, null, 2));
 
   try {
-    const { tipo, nome, email, senha, telefone, cpf_cnpj, nomeLoja, categoria, descricaoLoja } = req.body;
+    let { tipo, nome, email, senha, telefone, cpf_cnpj, nomeLoja, categoria, descricaoLoja } = req.body;
 
+    // Sanitize all inputs
+    tipo = sanitizeString(tipo);
+    nome = sanitizeString(nome);
+    email = sanitizeEmail(email);
+    telefone = sanitizePhone(telefone);
+    cpf_cnpj = sanitizeCpfCnpj(cpf_cnpj);
+    nomeLoja = sanitizeString(nomeLoja);
+    categoria = sanitizeString(categoria);
+    descricaoLoja = sanitizeString(descricaoLoja);
+
+    // Validate required fields
     if (!tipo || !nome || !email || !senha) {
       console.log('❌ Campos obrigatórios faltando');
       return res.status(400).json({ error: 'Campos obrigatórios faltando' });
+    }
+
+    // Require telefone and cpf_cnpj for all users
+    if (!telefone || !cpf_cnpj) {
+      console.log('❌ Telefone e CPF/CNPJ são obrigatórios');
+      return res.status(400).json({ error: 'Telefone e CPF/CNPJ são obrigatórios para completar o perfil' });
     }
 
     console.log('✅ Validação inicial OK');
