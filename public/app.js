@@ -20,6 +20,14 @@ let products = [];
 let shoppingCart = [];
 let currentFilter = 'Todos';
 
+// ==================== HELPERS ====================
+function getProductImageHTML(product) {
+    if (product.imagem_url) {
+        return `<img src="${product.imagem_url}" alt="${product.nome}">`;
+    }
+    return '<div class="no-image">Sem imagem</div>';
+}
+
 // ==================== API HELPERS ====================
 async function apiRequest(endpoint, options = {}) {
     const headers = {
@@ -172,8 +180,11 @@ function showDashboardSection(userType, section) {
             populateSellerProfile();
         }
     } else if (section === 'pedidos') {
-        // Future implementation: show orders page
-        alert('Seção de pedidos em desenvolvimento');
+        if (userType === 'cliente') {
+            showPage('cliente-pedidos');
+        } else {
+            showPage('vendedor-pedidos');
+        }
     } else if (section === 'produtos') {
         showPage('seller-products');
         loadSellerProducts();
@@ -203,9 +214,31 @@ function populateClienteProfile() {
 }
 
 function populateSellerProfile() {
-    // Future implementation: populate seller profile
     if (!currentUser || currentUser.tipo !== 'vendedor') return;
-    // Seller profile population will be implemented when needed
+    
+    const setDisplayText = (id, value) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = value || 'Não informado';
+    };
+    
+    // Populate view mode
+    setDisplayText('display-nome-loja', currentUser.nome_loja);
+    setDisplayText('display-descricao-loja', currentUser.descricao_loja);
+    setDisplayText('display-categoria', currentUser.categoria);
+    setDisplayText('display-cpf-cnpj', currentUser.cpf_cnpj);
+    setDisplayText('display-email', currentUser.email);
+    
+    // Load and display product count
+    if (currentUser.seller_id) {
+        apiRequest(`/products?seller_id=${currentUser.seller_id}`)
+            .then(data => {
+                const productCount = data.products ? data.products.length : 0;
+                setDisplayText('display-total-produtos', productCount);
+            })
+            .catch(err => {
+                console.error('Erro ao carregar contagem de produtos:', err);
+            });
+    }
 }
 
 function goToMarketplaceWithCategory(category) {
@@ -214,8 +247,90 @@ function goToMarketplaceWithCategory(category) {
 }
 
 function showMyStore() {
-    // Future implementation: show seller's public store page
-    alert('Visualização da loja em desenvolvimento');
+    if (!currentUser || !currentUser.seller_id) {
+        alert('Apenas vendedores podem ver sua loja');
+        return;
+    }
+    
+    // Load and display the store page with seller's own data
+    loadStoreData(currentUser.seller_id);
+    showPage('store-page');
+}
+
+async function loadStoreData(sellerId) {
+    try {
+        // Load seller data
+        const sellerData = currentUser;
+        
+        // Load seller's products
+        const productsData = await apiRequest(`/products?seller_id=${sellerId}`);
+        const sellerProducts = productsData.products || [];
+        
+        // Populate store page
+        const storeNameDisplay = document.getElementById('store-name-display');
+        const storeBreadcrumb = document.getElementById('store-breadcrumb-name');
+        const storeCategoryDisplay = document.getElementById('store-category-display');
+        const storeDescriptionDisplay = document.getElementById('store-description-display');
+        const storeProductsCount = document.getElementById('store-products-count');
+        const storeMemberSince = document.getElementById('store-member-since');
+        const storeAvatar = document.getElementById('store-avatar');
+        const storeProductsTitle = document.getElementById('store-products-title');
+        
+        if (storeNameDisplay) storeNameDisplay.textContent = sellerData.nome_loja || 'Loja';
+        if (storeBreadcrumb) storeBreadcrumb.textContent = sellerData.nome_loja || 'Loja';
+        if (storeCategoryDisplay) storeCategoryDisplay.textContent = sellerData.categoria || 'Categoria';
+        if (storeDescriptionDisplay) storeDescriptionDisplay.textContent = sellerData.descricao_loja || 'Sem descrição';
+        if (storeProductsCount) storeProductsCount.textContent = sellerProducts.length;
+        if (storeProductsTitle) storeProductsTitle.textContent = sellerData.nome_loja || 'Esta Loja';
+        
+        if (storeAvatar) {
+            const initial = (sellerData.nome_loja || 'L').charAt(0).toUpperCase();
+            storeAvatar.textContent = initial;
+        }
+        
+        if (storeMemberSince && sellerData.created_at) {
+            const date = new Date(sellerData.created_at);
+            const month = date.toLocaleDateString('pt-BR', { month: 'short' });
+            const year = date.getFullYear();
+            storeMemberSince.textContent = `${month} ${year}`;
+        }
+        
+        // Render store products
+        renderStoreProducts(sellerProducts);
+        
+    } catch (error) {
+        console.error('Erro ao carregar dados da loja:', error);
+        alert('Erro ao carregar dados da loja');
+    }
+}
+
+function renderStoreProducts(storeProducts) {
+    const container = document.getElementById('store-products-grid');
+    const emptyState = document.getElementById('store-empty-state');
+    
+    if (!container) return;
+    
+    if (storeProducts.length === 0) {
+        if (container) container.innerHTML = '';
+        if (emptyState) emptyState.style.display = 'block';
+        return;
+    }
+    
+    if (emptyState) emptyState.style.display = 'none';
+    
+    container.innerHTML = storeProducts.map(product => `
+        <div class="product-card">
+            <div class="product-image">
+                ${getProductImageHTML(product)}
+            </div>
+            <div class="product-info">
+                <h3>${product.nome}</h3>
+                <p class="product-description">${product.descricao || ''}</p>
+                <p class="product-price">R$ ${(parseFloat(product.preco) || 0).toFixed(2).replace('.', ',')}</p>
+                <button onclick="addToCart(${product.id})" class="btn-primary">Adicionar ao Carrinho</button>
+            </div>
+        </div>
+    `).join('');
 }
 
 // ==================== FORMS ====================
@@ -268,13 +383,35 @@ function cancelClienteEditMode() {
 }
 
 function enterEditMode() {
-    // For seller profile editing (similar to cliente)
-    alert('Edição de perfil do vendedor em desenvolvimento');
+    const viewMode = document.getElementById('profile-view-mode');
+    const editMode = document.getElementById('profile-edit-mode');
+    
+    if (viewMode) viewMode.style.display = 'none';
+    if (editMode) editMode.style.display = 'block';
+    
+    // Populate edit form with current user data
+    if (currentUser) {
+        const setFieldValue = (id, value) => {
+            const field = document.getElementById(id);
+            if (field) field.value = value || '';
+        };
+        
+        setFieldValue('edit-nome-loja', currentUser.nome_loja);
+        setFieldValue('edit-descricao-loja', currentUser.descricao_loja);
+        setFieldValue('edit-categoria', currentUser.categoria);
+        setFieldValue('edit-cpf-cnpj', currentUser.cpf_cnpj);
+        
+        const emailDisplay = document.getElementById('edit-display-email');
+        if (emailDisplay) emailDisplay.textContent = currentUser.email;
+    }
 }
 
 function cancelEditMode() {
-    // For seller profile editing
-    alert('Edição de perfil do vendedor em desenvolvimento');
+    const viewMode = document.getElementById('profile-view-mode');
+    const editMode = document.getElementById('profile-edit-mode');
+    
+    if (viewMode) viewMode.style.display = 'block';
+    if (editMode) editMode.style.display = 'none';
 }
 
 function cancelAddProduct() {
@@ -305,6 +442,13 @@ function formatCpfCnpj(input) {
         value = value.replace(/(\d{3})(\d)/, '$1/$2');
         value = value.replace(/(\d{4})(\d{1,2})$/, '$1-$2');
     }
+    input.value = value;
+}
+
+function formatCep(input) {
+    let value = input.value.replace(/\D/g, '');
+    value = value.substring(0, 8); // Limit to 8 digits
+    value = value.replace(/(\d{5})(\d)/, '$1-$2');
     input.value = value;
 }
 
@@ -340,6 +484,23 @@ function validateCpfCnpjField() {
         return true;
     }
     return true;
+}
+
+function validateEditCpfCnpjField() {
+    const cpfCnpjEdit = document.getElementById('edit-cpf-cnpj');
+    const cpfCnpjError = document.getElementById('edit-cpf-cnpj-error');
+    
+    if (!cpfCnpjEdit || !cpfCnpjError) return true;
+    
+    const cpfCnpj = cpfCnpjEdit.value.trim();
+    
+    if (cpfCnpj && !validateCpfCnpj(cpfCnpj)) {
+        cpfCnpjError.style.display = 'block';
+        return false;
+    } else {
+        cpfCnpjError.style.display = 'none';
+        return true;
+    }
 }
 
 function validateEmail() {
@@ -718,7 +879,7 @@ function renderProducts() {
     container.innerHTML = products.map(product => `
         <div class="product-card">
             <div class="product-image">
-                ${product.imagem_url ? `<img src="${product.imagem_url}" alt="${product.nome}">` : '<div class="no-image">Sem imagem</div>'}
+                ${getProductImageHTML(product)}
             </div>
             <div class="product-info">
                 <h3>${product.nome}</h3>
@@ -877,6 +1038,26 @@ function renderCart() {
 }
 
 function filterByCategory(categoria) {
+    // Get all filter buttons once
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    
+    // Remove active class from all buttons
+    filterButtons.forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Find and activate the clicked button
+    filterButtons.forEach(btn => {
+        if (btn.textContent.includes(categoria) || (categoria === 'Todos' && btn.textContent === 'Todos')) {
+            btn.classList.add('active', 'loading');
+            
+            // Remove loading after a short delay
+            setTimeout(() => {
+                btn.classList.remove('loading');
+            }, 300);
+        }
+    });
+    
     currentFilter = categoria;
     loadProducts(categoria);
 }
@@ -1035,6 +1216,115 @@ async function upgradeToVendor(event) {
     }
 }
 
+// ==================== PROFILE EDITING ====================
+async function updateSellerProfile(event) {
+    event.preventDefault();
+    
+    if (!currentUser || currentUser.tipo !== 'vendedor') {
+        alert('Apenas vendedores podem editar perfil de vendedor');
+        return;
+    }
+    
+    const nomeLoja = document.getElementById('edit-nome-loja').value.trim();
+    const descricaoLoja = document.getElementById('edit-descricao-loja').value.trim();
+    const categoria = document.getElementById('edit-categoria').value;
+    const cpfCnpj = document.getElementById('edit-cpf-cnpj').value.trim();
+    
+    if (!nomeLoja || !categoria) {
+        showMessage('profile-edit-messages', 'Por favor, preencha todos os campos obrigatórios', true);
+        return;
+    }
+    
+    if (cpfCnpj && !validateCpfCnpj(cpfCnpj)) {
+        document.getElementById('edit-cpf-cnpj-error').style.display = 'block';
+        showMessage('profile-edit-messages', 'CPF/CNPJ inválido', true);
+        return;
+    }
+    
+    try {
+        // TODO: Call API to update seller profile when endpoint is available
+        // await apiRequest('/sellers/profile', {
+        //     method: 'PUT',
+        //     body: JSON.stringify({ nome_loja: nomeLoja, descricao_loja: descricaoLoja, categoria, cpf_cnpj: cpfCnpj })
+        // });
+        
+        // For now, just update localStorage (will not persist across sessions until API is implemented)
+        currentUser.nome_loja = nomeLoja;
+        currentUser.descricao_loja = descricaoLoja;
+        currentUser.categoria = categoria;
+        if (cpfCnpj) currentUser.cpf_cnpj = cpfCnpj;
+        
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        
+        showMessage('profile-edit-messages', 'Perfil atualizado com sucesso!', false);
+        
+        setTimeout(() => {
+            cancelEditMode();
+            populateSellerProfile();
+        }, 1500);
+        
+    } catch (error) {
+        console.error('Erro ao atualizar perfil:', error);
+        showMessage('profile-edit-messages', error.message, true);
+    }
+}
+
+async function updateClienteProfile(event) {
+    event.preventDefault();
+    
+    if (!currentUser || currentUser.tipo !== 'cliente') {
+        alert('Apenas clientes podem editar perfil de cliente');
+        return;
+    }
+    
+    const nome = document.getElementById('edit-cliente-nome').value.trim();
+    const telefone = document.getElementById('edit-cliente-telefone').value.trim();
+    const cep = document.getElementById('edit-cliente-cep').value.trim();
+    const rua = document.getElementById('edit-cliente-rua').value.trim();
+    const numero = document.getElementById('edit-cliente-numero').value.trim();
+    const complemento = document.getElementById('edit-cliente-complemento').value.trim();
+    const bairro = document.getElementById('edit-cliente-bairro').value.trim();
+    const cidade = document.getElementById('edit-cliente-cidade').value.trim();
+    const estado = document.getElementById('edit-cliente-estado').value;
+    
+    if (!nome) {
+        showMessage('cliente-profile-edit-messages', 'Nome é obrigatório', true);
+        return;
+    }
+    
+    try {
+        // TODO: Call API to update client profile when endpoint is available
+        // await apiRequest('/users/profile', {
+        //     method: 'PUT',
+        //     body: JSON.stringify({ nome, telefone, cep, rua, numero, complemento, bairro, cidade, estado })
+        // });
+        
+        // For now, just update localStorage (will not persist across sessions until API is implemented)
+        currentUser.nome = nome;
+        currentUser.telefone = telefone;
+        currentUser.cep = cep;
+        currentUser.rua = rua;
+        currentUser.numero = numero;
+        currentUser.complemento = complemento;
+        currentUser.bairro = bairro;
+        currentUser.cidade = cidade;
+        currentUser.estado = estado;
+        
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        
+        showMessage('cliente-profile-edit-messages', 'Perfil atualizado com sucesso!', false);
+        
+        setTimeout(() => {
+            cancelClienteEditMode();
+            populateClienteProfile();
+        }, 1500);
+        
+    } catch (error) {
+        console.error('Erro ao atualizar perfil:', error);
+        showMessage('cliente-profile-edit-messages', error.message, true);
+    }
+}
+
 // ==================== INICIALIZAÇÃO ====================
 document.addEventListener('DOMContentLoaded', () => {
     console.log('🚀 Inicializando aplicação...');
@@ -1072,6 +1362,36 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
         console.log('ℹ️ Vendor registration form not found (will be attached when page loads)');
     }
+    
+    const editProfileForm = document.getElementById('editProfileForm');
+    const editClienteProfileForm = document.getElementById('editClienteProfileForm');
+    
+    if (editProfileForm) {
+        editProfileForm.addEventListener('submit', updateSellerProfile);
+        console.log('✅ Edit seller profile form event listener attached');
+    } else {
+        console.log('ℹ️ Edit seller profile form not found (will be attached when page loads)');
+    }
+    
+    if (editClienteProfileForm) {
+        editClienteProfileForm.addEventListener('submit', updateClienteProfile);
+        console.log('✅ Edit cliente profile form event listener attached');
+    } else {
+        console.log('ℹ️ Edit cliente profile form not found (will be attached when page loads)');
+    }
+    
+    // Populate estado selects
+    const estadoSelects = document.querySelectorAll('#edit-cliente-estado');
+    estadoSelects.forEach(select => {
+        if (select && select.children.length === 1) {
+            estadosBrasileiros.forEach(estado => {
+                const option = document.createElement('option');
+                option.value = estado.code;
+                option.textContent = estado.name;
+                select.appendChild(option);
+            });
+        }
+    });
     
     const savedToken = localStorage.getItem('authToken');
     const savedUser = localStorage.getItem('currentUser');

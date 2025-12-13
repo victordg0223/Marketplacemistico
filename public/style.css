@@ -172,6 +172,7 @@ body, html {
     gap: var(--space-6);
     margin: 0;
     padding: 0;
+    align-items: center;
 }
 
 .nav-links a {
@@ -181,6 +182,9 @@ body, html {
     position: relative;
     transition: var(--transition-fast);
     text-decoration: none;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
 }
 
 .nav-links a::after {
@@ -641,7 +645,8 @@ body, html {
     border-radius: 20px;
     padding: var(--space-2) var(--space-4);
     cursor: pointer;
-    transition: var(--transition-fast);
+    transition: all 0.3s ease;
+    position: relative;
 }
 
 .filter-btn:hover {
@@ -655,6 +660,24 @@ body, html {
     color: var(--color-background);
     font-weight: 600;
     border-color: var(--color-accent);
+}
+
+.filter-btn.loading::after {
+    content: '';
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 12px;
+    height: 12px;
+    border: 2px solid transparent;
+    border-top-color: currentColor;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: translateY(-50%) rotate(360deg); }
 }
 
 .products-grid {
@@ -681,9 +704,27 @@ body, html {
 }
 
 .product-image {
-    text-align: center;
-    font-size: 3rem;
+    width: 100%;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     margin-bottom: var(--space-4);
+    overflow: hidden;
+    background: var(--color-surface-light);
+    border-radius: var(--radius-md);
+}
+
+.product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.product-image .no-image {
+    font-size: 3rem;
+    color: var(--color-text-secondary);
+    text-align: center;
 }
 
 .product-category {
@@ -1019,4 +1060,10 @@ body, html {
 .sidebar-separator a {
     color: var(--color-secondary);
     font-weight: 600;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: var(--space-8);
 }

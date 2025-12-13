@@ -760,6 +760,62 @@
                 </div>
             </section>
             
+            <!-- Cliente Orders Page -->
+            <section id="cliente-pedidos" class="page">
+                <div class="dashboard-layout">
+                    <aside class="sidebar">
+                        <h3>Menu do Cliente</h3>
+                        <ul class="sidebar-nav">
+                            <li><a onclick="showPage('marketplace')">🔍 Explorar Produtos</a></li>
+                            <li><a onclick="showDashboardSection('cliente', 'carrinho')">🛒 Meu Carrinho</a></li>
+                            <li><a onclick="showDashboardSection('cliente', 'pedidos')">📋 Meus Pedidos</a></li>
+                            <li><a onclick="showDashboardSection('cliente', 'perfil')">👤 Perfil</a></li>
+                            <li class="sidebar-separator"><a onclick="showBecomeVendorModal()">🏪 Tornar-se Vendedor</a></li>
+                            <li><a onclick="logout()">🚪 Sair</a></li>
+                        </ul>
+                    </aside>
+                    <main class="dashboard-content">
+                        <h2 style="margin-bottom: var(--space-6);">Meus Pedidos</h2>
+                        <div id="cliente-orders-content">
+                            <div class="empty-state" style="text-align: center; padding: var(--space-12); background: var(--color-surface-light); border-radius: var(--radius-lg);">
+                                <h3 style="color: var(--color-secondary); margin-bottom: var(--space-4);">📦 Você ainda não fez nenhum pedido</h3>
+                                <p style="color: var(--color-text-secondary); margin-bottom: var(--space-6);">Explore nosso marketplace e faça seu primeiro pedido!</p>
+                                <button class="btn" onclick="showPage('marketplace')">🔍 Explorar Produtos</button>
+                            </div>
+                        </div>
+                    </main>
+                </div>
+            </section>
+            
+            <!-- Vendedor Orders Page -->
+            <section id="vendedor-pedidos" class="page">
+                <div class="dashboard-layout">
+                    <aside class="sidebar">
+                        <h3>Painel do Vendedor</h3>
+                        <ul class="sidebar-nav">
+                            <li><a onclick="showDashboardSection('vendedor', 'produtos')">📦 Meus Produtos</a></li>
+                            <li><a onclick="showDashboardSection('vendedor', 'adicionar')">➕ Adicionar Produto</a></li>
+                            <li><a onclick="showDashboardSection('vendedor', 'pedidos')">📋 Pedidos</a></li>
+                            <li><a onclick="showDashboardSection('vendedor', 'perfil')">🏪 Perfil da Loja</a></li>
+                            <li><a onclick="showMyStore()">👁️ Ver Minha Loja</a></li>
+                            <li class="sidebar-separator"><a onclick="showPage('marketplace')">🛒 Comprar Produtos</a></li>
+                            <li><a onclick="showDashboardSection('vendedor', 'carrinho')">🛍️ Meu Carrinho</a></li>
+                            <li><a onclick="logout()">🚪 Sair</a></li>
+                        </ul>
+                    </aside>
+                    <main class="dashboard-content">
+                        <h2 style="margin-bottom: var(--space-6);">Pedidos Recebidos</h2>
+                        <div id="vendedor-orders-content">
+                            <div class="empty-state" style="text-align: center; padding: var(--space-12); background: var(--color-surface-light); border-radius: var(--radius-lg);">
+                                <h3 style="color: var(--color-secondary); margin-bottom: var(--space-4);">📦 Nenhum pedido recebido ainda</h3>
+                                <p style="color: var(--color-text-secondary); margin-bottom: var(--space-6);">Quando você receber pedidos, eles aparecerão aqui.</p>
+                                <button class="btn" onclick="showDashboardSection('vendedor', 'produtos')">📦 Ver Meus Produtos</button>
+                            </div>
+                        </div>
+                    </main>
+                </div>
+            </section>
+            
             <!-- Store Page -->
             <section id="store-page" class="page">
                 <div class="store-page">
