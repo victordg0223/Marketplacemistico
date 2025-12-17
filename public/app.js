@@ -1023,10 +1023,10 @@ function renderCart() {
 
     if (shoppingCart.length === 0) {
         container.innerHTML = `
-            <div style="text-align: center; padding: var(--space-12); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg);">
-                <div style="font-size: 4rem; margin-bottom: var(--space-4); opacity: 0.5;">🛒</div>
-                <h3 style="color: var(--color-secondary); margin-bottom: var(--space-3);">Seu carrinho está vazio</h3>
-                <p style="color: var(--color-text-secondary); margin-bottom: var(--space-6);">Adicione produtos ao seu carrinho para continuar comprando</p>
+            <div class="empty-cart-state">
+                <div class="empty-cart-icon">🛒</div>
+                <h3>Seu carrinho está vazio</h3>
+                <p>Adicione produtos ao seu carrinho para continuar comprando</p>
                 <button onclick="showPage('marketplace')" class="btn">🔍 Explorar Produtos</button>
             </div>
         `;

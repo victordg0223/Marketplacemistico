@@ -849,6 +849,30 @@ body, html {
     border-color: var(--color-secondary);
 }
 
+.empty-cart-state {
+    text-align: center;
+    padding: var(--space-12);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+}
+
+.empty-cart-icon {
+    font-size: 4rem;
+    margin-bottom: var(--space-4);
+    opacity: 0.5;
+}
+
+.empty-cart-state h3 {
+    color: var(--color-secondary);
+    margin-bottom: var(--space-3);
+}
+
+.empty-cart-state p {
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-6);
+}
+
 .product-detail {
     display: grid;
     grid-template-columns: 1fr 1.5fr;
