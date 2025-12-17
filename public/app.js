@@ -171,6 +171,7 @@ function showDashboardSection(userType, section) {
     // For now, just show the appropriate page based on section
     if (section === 'carrinho') {
         showPage('carrinho');
+        renderCart();
     } else if (section === 'perfil') {
         if (userType === 'cliente') {
             showPage('cliente-profile');
@@ -1008,8 +1009,17 @@ function showCart() {
 function renderCart() {
     const container = document.getElementById('cart-items');
     const subtotalElement = document.getElementById('cart-subtotal');
+    const subtitleElement = document.getElementById('cart-subtitle');
 
     if (!container || !subtotalElement) return;
+
+    const totalItems = shoppingCart.reduce((sum, item) => sum + item.quantidade, 0);
+    
+    if (subtitleElement) {
+        subtitleElement.textContent = totalItems === 0 ? '0 itens no carrinho' : 
+                                     totalItems === 1 ? '1 item no carrinho' : 
+                                     `${totalItems} itens no carrinho`;
+    }
 
     if (shoppingCart.length === 0) {
         container.innerHTML = '<p style="text-align: center; padding: 2rem;">Seu carrinho está vazio</p>';
@@ -1094,6 +1104,9 @@ function closeMobileSidebar() {
 function navigateFromSidebar(pageId) {
     closeMobileSidebar();
     showPage(pageId);
+    if (pageId === 'carrinho') {
+        renderCart();
+    }
 }
 
 function logoutFromSidebar() {
