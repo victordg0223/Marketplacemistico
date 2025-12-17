@@ -104,11 +104,20 @@ export default async function handler(req, res) {
       [user.id]
     );
 
-    const { senha_hash, ...userData } = updatedUsers[0];
+    const updatedUser = updatedUsers[0];
+    const { senha_hash, ...userData } = updatedUser;
+
+    // 4. Generate new JWT token with updated user type
+    const newToken = jwt.sign(
+      { id: updatedUser.id, email: updatedUser.email, tipo: updatedUser.tipo },
+      process.env.JWT_SECRET || 'secret_padrao_mude_isso',
+      { expiresIn: '7d' }
+    );
 
     return res.status(200).json({
       success: true,
       message: 'Parabéns! Você agora é um vendedor!',
+      token: newToken,
       user: userData
     });
 

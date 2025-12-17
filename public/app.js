@@ -1216,6 +1216,13 @@ async function upgradeToVendor(event) {
         if (data.success) {
             // Update current user data (senha_hash already removed by API)
             currentUser = data.user;
+            
+            // Update auth token with new JWT that contains updated user type
+            if (data.token) {
+                authToken = data.token;
+                localStorage.setItem('authToken', authToken);
+            }
+            
             localStorage.setItem('currentUser', JSON.stringify(currentUser));
             
             showMessage('vendor-registration-messages', 'Parabéns! Você agora é um vendedor!', false);
