@@ -183,9 +183,12 @@ Este projeto está sob a licença especificada no arquivo LICENSE.
 ## 👥 Autores
 
 - [@victordg0223](https://github.com/victordg0223)
+- [@ojuras](https://github.com/oJuras)
 
 ## 📞 Suporte
 
+email: miwoadm@gmail.com
+whatsapp: (11)91199-3949
 Para dúvidas ou sugestões, abra uma issue no repositório do GitHub.
 
 ---
