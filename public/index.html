@@ -15,6 +15,12 @@
             <ul class="nav-links">
                 <li><a onclick="navigateHome()">Home</a></li>
                 <li><a onclick="showPage('marketplace')">Explorar Produtos</a></li>
+                <li id="mode-toggle-container" class="hidden">
+                    <button class="mode-toggle-btn" id="mode-toggle-btn" onclick="toggleUserMode()" aria-label="Alternar entre modo Cliente e Vendedor">
+                        <span class="mode-icon" id="mode-icon">🛒</span>
+                        <span class="mode-text" id="mode-text">Cliente</span>
+                    </button>
+                </li>
                 <li><a onclick="showCart()" id="cart-nav-link" class="hidden" style="position: relative;">🛒 Carrinho <span id="cart-badge" style="position: absolute; top: -8px; right: -8px; background: rgb(255, 68, 68); color: white; border-radius: 50%; font-size: 12px; font-weight: bold; min-width: 20px; height: 20px; display: none; align-items: center; justify-content: center; border: 2px solid var(--color-background);">0</span></a></li>
                 <li><a onclick="showPage('login')" id="nav-login-link" style="display: block;">Login</a></li>
                 <li><a onclick="showPage('registro')" id="nav-register-link" style="display: block;">Registrar</a></li>
@@ -40,6 +46,12 @@
         <ul class="sidebar-menu">
             <li><a onclick="navigateHomeFromSidebar()">🏠 Home</a></li>
             <li><a onclick="navigateFromSidebar('marketplace')">🔍 Explorar Produtos</a></li>
+            <li id="mobile-mode-toggle-container" class="hidden">
+                <button class="mode-toggle-btn mobile-mode-toggle" onclick="toggleUserMode()" aria-label="Alternar entre modo Cliente e Vendedor">
+                    <span class="mode-icon" id="mobile-mode-icon">🛒</span>
+                    <span class="mode-text" id="mobile-mode-text">Cliente</span>
+                </button>
+            </li>
             <li><a onclick="navigateFromSidebar('carrinho')" id="mobile-cart-link" class="hidden">🛒 Carrinho (<span id="mobile-cart-count">0</span>)</a></li>
             <li><a onclick="navigateFromSidebar('login')" id="mobile-login-link" style="display: block;">🔑 Login</a></li>
             <li><a onclick="navigateFromSidebar('registro')" id="mobile-register-link" style="display: block;">📝 Registrar</a></li>

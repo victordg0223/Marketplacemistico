@@ -222,6 +222,58 @@ body, html {
     transition: var(--transition-fast);
 }
 
+/* Mode Toggle Button */
+.mode-toggle-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-primary) 100%);
+    color: white;
+    padding: var(--space-2) var(--space-4);
+    border-radius: 50px;
+    border: 2px solid var(--color-accent);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: var(--font-size-sm);
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(123, 31, 162, 0.3);
+}
+
+.mode-toggle-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(123, 31, 162, 0.5);
+    border-color: var(--color-accent);
+}
+
+.mode-toggle-btn:active {
+    transform: translateY(0);
+}
+
+.mode-toggle-btn .mode-icon {
+    font-size: 1.2rem;
+    transition: transform 0.3s ease;
+}
+
+.mode-toggle-btn:hover .mode-icon {
+    transform: rotate(15deg) scale(1.1);
+}
+
+.mode-toggle-btn .mode-text {
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.mobile-mode-toggle {
+    width: 100%;
+    justify-content: center;
+    margin: var(--space-3) 0;
+}
+
+#mode-toggle-container {
+    display: flex;
+    align-items: center;
+}
+
 /* Mobile Sidebar */
 .mobile-sidebar {
     display: none;
