@@ -2,6 +2,7 @@
 let currentUser = null;
 let authToken = null;
 const API_BASE = '/api';
+let activeMode = null; // 'cliente' or 'vendedor'
 
 const estadosBrasileiros = [
     { code: 'AC', name: 'Acre' }, { code: 'AL', name: 'Alagoas' }, { code: 'AP', name: 'Amapá' },
@@ -84,9 +85,84 @@ async function loadSellerProducts() {
 }
 
 // ==================== NAVEGAÇÃO ====================
+function toggleUserMode() {
+    console.log('🔄 toggleUserMode() chamado');
+    console.log('👤 currentUser:', currentUser);
+    console.log('📍 activeMode atual:', activeMode);
+    
+    if (!currentUser) {
+        alert('Você precisa estar logado para alternar entre modos');
+        return;
+    }
+    
+    // Only allow toggle if user is a vendor (vendors can act as both cliente and vendedor)
+    if (currentUser.tipo !== 'vendedor') {
+        alert('Apenas vendedores podem alternar entre os modos Cliente e Vendedor');
+        return;
+    }
+    
+    // Toggle between cliente and vendedor mode
+    if (activeMode === 'cliente') {
+        activeMode = 'vendedor';
+    } else {
+        activeMode = 'cliente';
+    }
+    
+    console.log('📍 Novo activeMode:', activeMode);
+    
+    // Save to localStorage
+    localStorage.setItem('activeMode', activeMode);
+    
+    // Update the toggle button
+    updateModeToggleButton();
+    
+    // Navigate to appropriate dashboard
+    navigateHome();
+}
+
+function updateModeToggleButton() {
+    const modeToggleContainer = document.getElementById('mode-toggle-container');
+    const mobileModeToggleContainer = document.getElementById('mobile-mode-toggle-container');
+    const modeIcon = document.getElementById('mode-icon');
+    const modeText = document.getElementById('mode-text');
+    const mobileModeIcon = document.getElementById('mobile-mode-icon');
+    const mobileModeText = document.getElementById('mobile-mode-text');
+    
+    // Show/hide toggle button based on user type
+    if (currentUser && currentUser.tipo === 'vendedor') {
+        if (modeToggleContainer) {
+            modeToggleContainer.classList.remove('hidden');
+        }
+        if (mobileModeToggleContainer) {
+            mobileModeToggleContainer.classList.remove('hidden');
+        }
+        
+        // Update button text and icon based on active mode
+        if (activeMode === 'cliente') {
+            if (modeIcon) modeIcon.textContent = '🛒';
+            if (modeText) modeText.textContent = 'Cliente';
+            if (mobileModeIcon) mobileModeIcon.textContent = '🛒';
+            if (mobileModeText) mobileModeText.textContent = 'Cliente';
+        } else {
+            if (modeIcon) modeIcon.textContent = '🏪';
+            if (modeText) modeText.textContent = 'Vendedor';
+            if (mobileModeIcon) mobileModeIcon.textContent = '🏪';
+            if (mobileModeText) mobileModeText.textContent = 'Vendedor';
+        }
+    } else {
+        if (modeToggleContainer) {
+            modeToggleContainer.classList.add('hidden');
+        }
+        if (mobileModeToggleContainer) {
+            mobileModeToggleContainer.classList.add('hidden');
+        }
+    }
+}
+
 function navigateHome() {
     console.log('🏠 navigateHome() chamado');
     console.log('👤 currentUser:', currentUser);
+    console.log('📍 activeMode:', activeMode);
     
     const user = getCurrentUser();
     
@@ -95,12 +171,21 @@ function navigateHome() {
         showPage('marketplace');
         loadProducts();
     } else if (user.tipo === 'vendedor') {
-        console.log('➡️ Vendedor, indo para dashboard-vendedor');
-        showPage('dashboard-vendedor');
-        loadSellerProducts();
-        populateSellerDashboard();
+        // For vendors, use activeMode to determine which dashboard to show
+        if (activeMode === 'cliente') {
+            console.log('➡️ Vendedor em modo Cliente, indo para dashboard-cliente');
+            showPage('dashboard-cliente');
+            loadProducts();
+            populateClienteDashboard();
+        } else {
+            console.log('➡️ Vendedor em modo Vendedor, indo para dashboard-vendedor');
+            showPage('dashboard-vendedor');
+            loadSellerProducts();
+            populateSellerDashboard();
+        }
     } else if (user.tipo === 'cliente') {
         console.log('➡️ Cliente, indo para dashboard-cliente');
+        activeMode = 'cliente'; // Ensure clients stay in cliente mode
         showPage('dashboard-cliente');
         loadProducts();
         populateClienteDashboard();
@@ -702,8 +787,18 @@ async function login(event) {
         authToken = data.token;
         currentUser = data.user;
         
+        // Set initial activeMode based on user type
+        if (currentUser.tipo === 'vendedor') {
+            // Vendors default to vendedor mode
+            activeMode = 'vendedor';
+        } else {
+            // Clients always in cliente mode
+            activeMode = 'cliente';
+        }
+        
         localStorage.setItem('authToken', authToken);
         localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        localStorage.setItem('activeMode', activeMode);
 
         console.log('💾 Dados salvos no localStorage');
 
@@ -726,8 +821,10 @@ async function login(event) {
 function logout() {
     currentUser = null;
     authToken = null;
+    activeMode = null;
     localStorage.removeItem('authToken');
     localStorage.removeItem('currentUser');
+    localStorage.removeItem('activeMode');
     updateNavbar();
     showPage('marketplace');
     loadProducts();
@@ -835,6 +932,9 @@ function updateNavbar() {
             mobileCartLink.classList.remove('hidden');
             mobileCartLink.style.display = 'block';
         }
+        
+        // Update mode toggle button
+        updateModeToggleButton();
     } else {
         console.log('ℹ️ Sem usuário, mostrando botões de auth');
         
@@ -861,6 +961,9 @@ function updateNavbar() {
             mobileCartLink.classList.add('hidden');
             mobileCartLink.style.display = 'none';
         }
+        
+        // Hide mode toggle button
+        updateModeToggleButton();
     }
 }
 
@@ -1223,7 +1326,11 @@ async function upgradeToVendor(event) {
                 localStorage.setItem('authToken', authToken);
             }
             
+            // Set activeMode to vendedor since they just became a vendor
+            activeMode = 'vendedor';
+            
             localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            localStorage.setItem('activeMode', activeMode);
             
             showMessage('vendor-registration-messages', 'Parabéns! Você agora é um vendedor!', false);
             
@@ -1422,12 +1529,24 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const savedToken = localStorage.getItem('authToken');
     const savedUser = localStorage.getItem('currentUser');
+    const savedActiveMode = localStorage.getItem('activeMode');
     
     if (savedToken && savedUser) {
         console.log('📝 Restaurando sessão do localStorage...');
         authToken = savedToken;
         currentUser = JSON.parse(savedUser);
+        
+        // Restore activeMode or set default based on user type
+        if (savedActiveMode) {
+            activeMode = savedActiveMode;
+        } else {
+            // Set default activeMode
+            activeMode = currentUser.tipo === 'vendedor' ? 'vendedor' : 'cliente';
+            localStorage.setItem('activeMode', activeMode);
+        }
+        
         console.log('✅ Sessão restaurada:', currentUser);
+        console.log('📍 activeMode restaurado:', activeMode);
         updateNavbar();
     } else {
         console.log('ℹ️ Sem sessão salva');
